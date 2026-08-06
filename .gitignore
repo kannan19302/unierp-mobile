@@ -46,3 +46,25 @@ storybook-static/
 # Repository-specific
 .dart_tool/
 .env.local
+
+# Flutter / Android / iOS toolchain output
+#
+# This repository is L5 and its toolchain is Dart and Gradle, not Node — the
+# generic ignore list above covers neither. `android/.gradle/` (the Gradle
+# build cache, tens of megabytes and machine-specific) was showing up as
+# untracked on a clean checkout, which is how a build cache ends up committed.
+.gradle/
+android/.gradle/
+android/app/debug/
+android/app/profile/
+android/app/release/
+android/local.properties
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework/
+ios/Flutter/ephemeral/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
