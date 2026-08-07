@@ -68,3 +68,24 @@ ios/Flutter/ephemeral/
 .packages
 .pub-cache/
 .pub/
+
+# One-off repair scripts and analyzer dumps must never be committed again.
+# Fifteen of them were tracked at this repo's root — twelve Python/PowerShell
+# fixers hardcoding paths into the retired ERPSys monorepo and a Gemini IDE task
+# log, plus three UTF-16 `flutter analyze` dumps. Three had already been deleted
+# once in the monorepo (see docs/ai/CHANGELOG.md) and came back through the
+# polyrepo extraction, which is why this is an ignore rule rather than a cleanup.
+# CODE_STANDARDS § 2.4: "Never create files that were not needed."
+/fix_*.py
+/auto_fix_*.py
+/revert_script.py
+/specific_remover.py
+/restore.py
+/gen_batch*.ps1
+/generate.ps1
+/*_analyze.txt
+/remaining_errors.txt
+/missing_controllers.txt
+# Analyzer / build output is reproducible; regenerate it, do not commit it.
+/full_analyze.txt
+/*.log
