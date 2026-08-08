@@ -1,5 +1,5 @@
 name: unerp_mobile
-description: UniERP client (Android, iOS, Windows, macOS, Linux) — one Clean Architecture Flutter codebase over the existing @unerp/api backend, growing in parity with apps/web per .ai/MULTI_CLIENT_MASTER_PLAN.md.
+description: UniERP client (Android, iOS, Windows, macOS, Linux) — one Clean Architecture Flutter codebase over the existing @kannan19302/api backend, growing in parity with apps/web per .ai/MULTI_CLIENT_MASTER_PLAN.md.
 publish_to: "none"
 version: 1.0.0+1
 
