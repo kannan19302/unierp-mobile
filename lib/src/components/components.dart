@@ -6,18 +6,18 @@ import '../tokens/tokens.g.dart';
 
 /// UniButton - Flutter implementation of Button primitive
 class UniButton extends StatelessWidget {
-  final String label;
-  final VoidCallback? onPressed;
-  final bool primary;
-  final Widget? icon;
-
   const UniButton({
-    Key? key,
+    super.key,
     required this.label,
     this.onPressed,
     this.primary = true,
     this.icon,
-  }) : super(key: key);
+  });
+
+  final String label;
+  final VoidCallback? onPressed;
+  final bool primary;
+  final Widget? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -48,10 +48,14 @@ class UniButton extends StatelessWidget {
 
 /// UniBadge - Flutter implementation of Badge primitive
 class UniBadge extends StatelessWidget {
+  const UniBadge({
+    super.key,
+    required this.label,
+    this.color,
+  });
+
   final String label;
   final Color? color;
-
-  const UniBadge({Key? key, required this.label, this.color}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -72,10 +76,14 @@ class UniBadge extends StatelessWidget {
 
 /// UniCard - Flutter implementation of Card primitive
 class UniCard extends StatelessWidget {
+  const UniCard({
+    super.key,
+    required this.child,
+    this.padding,
+  });
+
   final Widget child;
   final EdgeInsetsGeometry? padding;
-
-  const UniCard({Key? key, required this.child, this.padding}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -93,10 +101,14 @@ class UniCard extends StatelessWidget {
 
 /// UniTable - Flutter implementation of DataGrid / Table primitive
 class UniTable extends StatelessWidget {
+  const UniTable({
+    super.key,
+    required this.headers,
+    required this.rows,
+  });
+
   final List<String> headers;
   final List<List<String>> rows;
-
-  const UniTable({Key? key, required this.headers, required this.rows}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -106,20 +118,29 @@ class UniTable extends StatelessWidget {
         TableRow(
           decoration: const BoxDecoration(color: UniTokens.bgSunken),
           children: headers
-              .map((h) => Padding(
-                    padding: const EdgeInsets.all(UniTokens.spaceSm),
-                    child: Text(h, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                  ))
+              .map(
+                (h) => Padding(
+                  padding: const EdgeInsets.all(UniTokens.spaceSm),
+                  child: Text(
+                    h,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  ),
+                ),
+              )
               .toList(),
         ),
-        ...rows.map((row) => TableRow(
-              children: row
-                  .map((cell) => Padding(
-                        padding: const EdgeInsets.all(UniTokens.spaceSm),
-                        child: Text(cell, style: const TextStyle(fontSize: 13)),
-                      ))
-                  .toList(),
-            )),
+        ...rows.map(
+          (row) => TableRow(
+            children: row
+                .map(
+                  (cell) => Padding(
+                    padding: const EdgeInsets.all(UniTokens.spaceSm),
+                    child: Text(cell, style: const TextStyle(fontSize: 13)),
+                  ),
+                )
+                .toList(),
+          ),
+        ),
       ],
     );
   }
@@ -127,10 +148,14 @@ class UniTable extends StatelessWidget {
 
 /// UniDesktopChrome - B20 Desktop Window Chrome & Native Layout
 class UniDesktopChrome extends StatelessWidget {
+  const UniDesktopChrome({
+    super.key,
+    required this.title,
+    required this.body,
+  });
+
   final String title;
   final Widget body;
-
-  const UniDesktopChrome({Key? key, required this.title, required this.body}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

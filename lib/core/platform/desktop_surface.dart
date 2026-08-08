@@ -18,11 +18,6 @@ class DesktopSurfaceConfig extends ChangeNotifier {
 }
 
 class DesktopMenuBar extends StatelessWidget {
-  final Widget child;
-  final VoidCallback? onNewRecord;
-  final VoidCallback? onSave;
-  final VoidCallback? onFind;
-
   const DesktopMenuBar({
     super.key,
     required this.child,
@@ -30,6 +25,11 @@ class DesktopMenuBar extends StatelessWidget {
     this.onSave,
     this.onFind,
   });
+
+  final Widget child;
+  final VoidCallback? onNewRecord;
+  final VoidCallback? onSave;
+  final VoidCallback? onFind;
 
   @override
   Widget build(BuildContext context) {
