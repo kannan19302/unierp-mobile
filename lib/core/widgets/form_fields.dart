@@ -223,7 +223,7 @@ class UiNumberField extends StatelessWidget {
       onChanged: onChanged,
       inputFormatters: <TextInputFormatter>[
         FilteringTextInputFormatter.allow(
-          RegExp(r'^-?\d*\.?\d{0,' '$decimalPlaces'),
+          RegExp(r'^-?\d*\.?\d{0,' '$decimalPlaces}'),
         ),
       ],
       validator: (String? value) {
