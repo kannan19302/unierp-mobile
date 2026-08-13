@@ -1,3 +1,5 @@
+import 'package:equatable/equatable.dart';
+
 import '../../../../core/contracts/paginated.dart';
 import '../../../../core/usecase/result.dart';
 import '../../../../core/usecase/usecase.dart';
@@ -162,4 +164,36 @@ class DeleteBuilderTemplateUseCase extends UseCase<void, String> {
   final BuilderRepository _repository;
   @override
   Future<Result<void>> call(String id) => _repository.deleteTemplate(id);
+}
+
+class PublishedFormParams extends Equatable {
+  const PublishedFormParams({required this.module, required this.slug});
+  final String module;
+  final String slug;
+  @override
+  List<Object?> get props => <Object?>[module, slug];
+}
+
+class GetPublishedFormUseCase extends UseCase<FormRuntimeDefinition, PublishedFormParams> {
+  const GetPublishedFormUseCase(this._repository);
+  final BuilderRepository _repository;
+  @override
+  Future<Result<FormRuntimeDefinition>> call(PublishedFormParams params) =>
+      _repository.getPublishedForm(params.module, params.slug);
+}
+
+class SubmitFormRecordParams extends Equatable {
+  const SubmitFormRecordParams({required this.schemaId, required this.data});
+  final String schemaId;
+  final Map<String, dynamic> data;
+  @override
+  List<Object?> get props => <Object?>[schemaId, data];
+}
+
+class SubmitFormRecordUseCase extends UseCase<void, SubmitFormRecordParams> {
+  const SubmitFormRecordUseCase(this._repository);
+  final BuilderRepository _repository;
+  @override
+  Future<Result<void>> call(SubmitFormRecordParams params) =>
+      _repository.submitFormRecord(params.schemaId, params.data);
 }

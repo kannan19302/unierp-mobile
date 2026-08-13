@@ -299,6 +299,7 @@ import '../../features/builder/presentation/pages/builder_form_detail_page.dart'
 import '../../features/builder/presentation/pages/builder_form_form_page.dart';
 import '../../features/builder/presentation/pages/builder_page_detail_page.dart';
 import '../../features/builder/presentation/pages/builder_page_form_page.dart';
+import '../../features/builder/presentation/pages/form_runtime_page.dart';
 
 // communication
 import '../../features/communication/presentation/pages/message_list_page.dart';
@@ -2470,6 +2471,14 @@ name: CustomerFormPage.routeName,
                     path: 'new',
                     name: 'builder-form-new',
                     builder: (_, __) => const BuilderFormFormPage(),
+                  ),
+                  GoRoute(
+                    path: FormRuntimePage.routePath,
+                    name: FormRuntimePage.routeName,
+                    builder: (_, GoRouterState state) => FormRuntimePage(
+                      module: state.pathParameters['module']!,
+                      slug: state.pathParameters['slug']!,
+                    ),
                   ),
                   GoRoute(
                     path: 'pages',

@@ -27,6 +27,16 @@ abstract class BuilderRemoteDataSource {
   Future<BuilderTemplateModel> createTemplate(Map<String, dynamic> payload);
   Future<BuilderTemplateModel> updateTemplate(String id, Map<String, dynamic> payload);
   Future<void> deleteTemplate(String id);
+
+  /// Fetches a *published* form definition for the runtime renderer.
+  Future<FormRuntimeDefinitionModel> getPublishedForm(String module, String slug);
+
+  /// Submits a completed data-entry form as a new record against its
+  /// backing SchemaRegistry.
+  Future<Map<String, dynamic>> submitFormRecord(
+    String schemaId,
+    Map<String, dynamic> data,
+  );
 }
 
 class BuilderRemoteDataSourceImpl implements BuilderRemoteDataSource {
@@ -129,4 +139,16 @@ class BuilderRemoteDataSourceImpl implements BuilderRemoteDataSource {
   @override
   Future<void> deleteTemplate(String id) =>
       _client.delete(ApiPaths.builderTemplate(id));
+
+  @override
+  Future<FormRuntimeDefinitionModel> getPublishedForm(String module, String slug) async =>
+      FormRuntimeDefinitionModel.fromJson(
+        await _client.getObject(ApiPaths.builderPageRegistryBySlug(module, slug)),);
+
+  @override
+  Future<Map<String, dynamic>> submitFormRecord(
+    String schemaId,
+    Map<String, dynamic> data,
+  ) =>
+      _client.post(ApiPaths.builderCustomRecords(schemaId), body: data);
 }

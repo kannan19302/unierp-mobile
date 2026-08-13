@@ -33,4 +33,7 @@ abstract class BuilderRepository {
   Future<Result<BuilderTemplate>> createTemplate(Map<String, dynamic> payload);
   Future<Result<BuilderTemplate>> updateTemplate(String id, Map<String, dynamic> payload);
   Future<Result<void>> deleteTemplate(String id);
+
+  Future<Result<FormRuntimeDefinition>> getPublishedForm(String module, String slug);
+  Future<Result<void>> submitFormRecord(String schemaId, Map<String, dynamic> data);
 }

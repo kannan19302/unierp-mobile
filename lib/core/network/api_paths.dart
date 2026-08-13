@@ -633,6 +633,14 @@ class ApiPaths {
   static String builderWorkflow(String id) => '/builder/workflows/$id';
   static const String builderTemplates = '/builder/templates';
   static String builderTemplate(String id) => '/builder/templates/$id';
+  // Published runtime form definition (page-registries) + its data-entry
+  // submissions (custom-records), used by the form-runtime renderer — see
+  // apps/api/src/developer/builder/builder.controller.ts.
+  static const String builderPageRegistries = '/builder/page-registries';
+  static String builderPageRegistryBySlug(String module, String slug) =>
+      '/builder/page-registries/$module/$slug';
+  static String builderCustomRecords(String schemaId) =>
+      '/builder/custom-records/$schemaId';
 
   // ── ecommerce (apps/api/src/modules/ecommerce/ecommerce.controller.ts) ──
   static const String ecommerceProducts = '/ecommerce/listings';

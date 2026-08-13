@@ -159,4 +159,18 @@ class BuilderRepositoryImpl implements BuilderRepository {
 
   @override
   Future<Result<void>> deleteTemplate(String id) => _delete(() => _remote.deleteTemplate(id));
+
+  @override
+  Future<Result<FormRuntimeDefinition>> getPublishedForm(String module, String slug) =>
+      _single(() => _remote.getPublishedForm(module, slug));
+
+  @override
+  Future<Result<void>> submitFormRecord(String schemaId, Map<String, dynamic> data) async {
+    final Result<Map<String, dynamic>> result =
+        await _write(() => _remote.submitFormRecord(schemaId, data));
+    return result.fold(
+      (failure) => Result<void>.err(failure),
+      (_) => const Result<void>.ok(null),
+    );
+  }
 }

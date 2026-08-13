@@ -259,3 +259,130 @@ class BuilderTemplateModel extends BuilderTemplate {
         'updatedAt': updatedAt?.toIso8601String(),
       };
 }
+
+// ── Form runtime (published page-registry) ──────────────────────────────────
+
+List<String> _asStringOptions(Object? raw) {
+  if (raw is! List) return const <String>[];
+  return raw
+      .map((dynamic e) {
+        if (e is String) return e;
+        if (e is Map<String, dynamic>) {
+          final Object? v = e['label'] ?? e['value'] ?? e['name'];
+          return v?.toString() ?? '';
+        }
+        return e.toString();
+      })
+      .where((String s) => s.isNotEmpty)
+      .toList(growable: false);
+}
+
+class FormRuntimeFieldModel extends FormRuntimeField {
+  const FormRuntimeFieldModel({
+    required super.id,
+    required super.name,
+    required super.type,
+    required super.label,
+    super.required = false,
+    super.options = const <String>[],
+  });
+
+  factory FormRuntimeFieldModel.fromJson(Map<String, dynamic> json) {
+    final String id = json['id'] as String? ?? '';
+    return FormRuntimeFieldModel(
+      id: id,
+      name: json['name'] as String? ?? id,
+      // The field JSON may come from either the runtime `layout.fields`
+      // shape (`type`) or, if a caller reuses admin field JSON, `fieldType`.
+      type: (json['type'] as String?) ?? (json['fieldType'] as String?) ?? 'text',
+      label: json['label'] as String? ?? '',
+      required: json['required'] as bool? ?? false,
+      options: _asStringOptions(json['options']),
+    );
+  }
+}
+
+class FormRuntimeStepModel extends FormRuntimeStep {
+  const FormRuntimeStepModel({
+    required super.id,
+    required super.title,
+    super.order = 0,
+    super.fieldIds = const <String>[],
+  });
+
+  factory FormRuntimeStepModel.fromJson(Map<String, dynamic> json) =>
+      FormRuntimeStepModel(
+        id: json['id'] as String? ?? '',
+        title: json['title'] as String? ?? '',
+        order: asInt(json['order']),
+        fieldIds: (json['fieldIds'] as List<dynamic>?)
+                ?.map((dynamic e) => e.toString())
+                .toList(growable: false) ??
+            const <String>[],
+      );
+}
+
+class FormRuntimeConditionModel extends FormRuntimeCondition {
+  const FormRuntimeConditionModel({
+    required super.fieldId,
+    required super.operator,
+    required super.value,
+    required super.action,
+    required super.targetFieldId,
+  });
+
+  factory FormRuntimeConditionModel.fromJson(Map<String, dynamic> json) =>
+      FormRuntimeConditionModel(
+        fieldId: json['fieldId'] as String? ?? '',
+        operator: json['operator'] as String? ?? 'equals',
+        value: json['value'],
+        action: json['action'] as String? ?? 'show',
+        targetFieldId: json['targetFieldId'] as String? ?? '',
+      );
+}
+
+class FormRuntimeDefinitionModel extends FormRuntimeDefinition {
+  const FormRuntimeDefinitionModel({
+    required super.id,
+    required super.module,
+    required super.slug,
+    required super.title,
+    super.schemaId,
+    super.fields = const <FormRuntimeField>[],
+    super.steps = const <FormRuntimeStep>[],
+    super.conditions = const <FormRuntimeCondition>[],
+    super.status = 'DRAFT',
+  });
+
+  /// `json` is a PageRegistry row: `{ id, schemaId, module, slug, title,
+  /// layout: { fields, pages, conditions, settings }, status, ... }`.
+  factory FormRuntimeDefinitionModel.fromJson(Map<String, dynamic> json) {
+    final Object? id = json['id'];
+    if (id is! String) throw const ParseException('Published form missing id');
+
+    final Object? rawLayout = json['layout'];
+    final Map<String, dynamic> layout =
+        rawLayout is Map<String, dynamic> ? rawLayout : const <String, dynamic>{};
+
+    return FormRuntimeDefinitionModel(
+      id: id,
+      schemaId: json['schemaId'] as String?,
+      module: json['module'] as String? ?? '',
+      slug: json['slug'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      status: json['status'] as String? ?? 'DRAFT',
+      fields: _parseItems(
+        layout['fields'] as List<dynamic>?,
+        FormRuntimeFieldModel.fromJson,
+      ),
+      steps: _parseItems(
+        layout['pages'] as List<dynamic>?,
+        FormRuntimeStepModel.fromJson,
+      ),
+      conditions: _parseItems(
+        layout['conditions'] as List<dynamic>?,
+        FormRuntimeConditionModel.fromJson,
+      ),
+    );
+  }
+}

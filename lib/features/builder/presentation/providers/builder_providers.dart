@@ -458,3 +458,14 @@ class BuilderTemplateListController extends Notifier<BuilderTemplateListState> {
     return result;
   }
 }
+
+/// Fetches a published form definition by (module, slug) for the runtime
+/// renderer — `GET /builder/page-registries/:module/:slug`.
+final FutureProviderFamily<FormRuntimeDefinition, ({String module, String slug})>
+    publishedFormProvider = FutureProvider.family<FormRuntimeDefinition,
+        ({String module, String slug})>((Ref ref, ({String module, String slug}) key) async {
+  final result = await GetPublishedFormUseCase(ref.watch(builderRepositoryProvider))(
+    PublishedFormParams(module: key.module, slug: key.slug),
+  );
+  return result.fold((f) => throw f, (v) => v);
+});
