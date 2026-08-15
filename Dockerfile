@@ -22,6 +22,17 @@ RUN git clone --depth 1 -b stable https://github.com/flutter/flutter.git ${FLUTT
 WORKDIR /app
 COPY . .
 
+# ── Stage: Dev Flutter Web-Server ──────────────────────────────────────────
+FROM builder AS dev
+ARG API_BASE_URL=http://api:3001
+ENV API_BASE_URL=$API_BASE_URL
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD curl -f http://localhost:8080/ || exit 1
+CMD ["flutter", "run", "-d", "web-server", "--web-port=8080", "--web-hostname=0.0.0.0", "--dart-define=API_BASE_URL=http://api:3001"]
+
+# ── Stage: Prod Build ──────────────────────────────────────────────────────
+FROM builder AS prod-builder
 ARG API_BASE_URL=http://api:3001
 RUN flutter pub get && \
     flutter build web --release --dart-define=API_BASE_URL=${API_BASE_URL}
@@ -29,7 +40,7 @@ RUN flutter pub get && \
 # ── Stage 2: Serve with Nginx ─────────────────────────────────────────────
 FROM nginx:alpine AS runner
 
-COPY --from=builder /app/build/web /usr/share/nginx/html
+COPY --from=prod-builder /app/build/web /usr/share/nginx/html
 
 RUN printf 'server {\n    listen 8080;\n    server_name localhost;\n    location / {\n        root /usr/share/nginx/html;\n        index index.html index.htm;\n        try_files $uri $uri/ /index.html;\n    }\n}\n' > /etc/nginx/conf.d/default.conf
 
