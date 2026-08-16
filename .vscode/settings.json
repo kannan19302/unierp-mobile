@@ -1,0 +1,7 @@
+{
+  "dart.flutterSdkPath": "C:\\src\\flutter",
+  "dart.hotReloadOnSave": "always",
+  "dart.previewFlutterUiGuides": true,
+  "dart.flutterCustomEmulators": [],
+  "editor.formatOnSave": true
+}

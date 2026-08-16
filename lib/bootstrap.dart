@@ -6,6 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:device_preview_plus/device_preview_plus.dart';
+import 'package:flutter/foundation.dart';
+
 import 'app/app.dart';
 import 'core/di/providers.dart';
 import 'core/logging/app_logger.dart';
@@ -68,7 +71,10 @@ Future<void> bootstrap() async {
   runApp(
     UncontrolledProviderScope(
       container: container,
-      child: const UniErpApp(),
+      child: DevicePreview(
+        enabled: kDebugMode && (kIsWeb || Platform.isWindows || Platform.isMacOS || Platform.isLinux),
+        builder: (context) => const UniErpApp(),
+      ),
     ),
   );
 }
