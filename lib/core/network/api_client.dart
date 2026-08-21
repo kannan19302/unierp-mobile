@@ -36,6 +36,7 @@ class ApiClient {
     required SecureSessionStore sessionStore,
     required String installId,
     required Future<void> Function() onSessionExpired,
+    Future<String?> Function(String refreshToken)? oidcRefresh,
   }) async {
     final BaseOptions options = BaseOptions(
       baseUrl: Env.apiBaseUrl,
@@ -73,6 +74,7 @@ class ApiClient {
         sessionStore: sessionStore,
         cookieStore: cookieStore,
         onSessionExpired: onSessionExpired,
+        oidcRefresh: oidcRefresh,
       ),
       RetryInterceptor(client: innerDio),
       const ErrorInterceptor(),
@@ -213,5 +215,25 @@ class ApiClient {
           .toList(growable: false);
     }
     throw const ParseException('Expected a JSON array response');
+  }
+
+  /// GET an endpoint whose response is a bare JSON array of strings — e.g.
+  /// `/saas/installed-apps`, which returns slugs rather than objects and so
+  /// doesn't fit [getList]'s `List<Map<String, dynamic>>` shape.
+  Future<List<String>> getStringList(
+    String path, {
+    Map<String, dynamic>? query,
+    CancelToken? cancelToken,
+  }) async {
+    final Response<dynamic> response = await _dio.get<dynamic>(
+      path,
+      queryParameters: query,
+      cancelToken: cancelToken,
+    );
+    final Object? body = response.data;
+    if (body is List) {
+      return body.whereType<String>().toList(growable: false);
+    }
+    throw const ParseException('Expected a JSON array of strings');
   }
 }

@@ -46,6 +46,25 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<!--
+	  OIDC PKCE redirect back from ASWebAuthenticationSession — must match
+	  Env.oidcRedirectUri ('unierp://auth/callback') and the redirect URI
+	  registered for the unierp-mobile OIDC client in
+	  data/prisma/seed-oidc-clients.ts.
+	-->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.unerp.mobile.auth</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>unierp</string>
+			</array>
+		</dict>
+	</array>
+	<!--
 	  No arbitrary-loads exception: the API is reached over HTTPS in every
 	  build except a simulator pointed at a local dev server, which uses
 	  http://127.0.0.1 (an ATS-exempt loopback address on iOS by default), so

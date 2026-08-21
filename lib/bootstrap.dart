@@ -15,6 +15,7 @@ import 'core/logging/app_logger.dart';
 import 'core/network/api_client.dart';
 import 'core/storage/cookie_store.dart';
 import 'core/storage/secure_session_store.dart';
+import 'features/auth/data/datasources/oidc_auth_datasource.dart';
 import 'features/auth/presentation/providers/auth_providers.dart';
 
 const AppLogger _log = AppLogger('bootstrap');
@@ -41,12 +42,22 @@ Future<void> bootstrap() async {
   // a request actually gets a 401, by which point it's always set.
   late final ProviderContainer container;
 
+  final OidcAuthDataSource oidcAuth = OidcAuthDataSourceImpl();
+
   final ApiClient apiClient = await ApiClient.create(
     cookieStore: cookieStore,
     sessionStore: sessionStore,
     installId: installId,
     onSessionExpired: () async {
       container.read(authControllerProvider.notifier).onSessionExpired();
+    },
+    oidcRefresh: (String refreshToken) async {
+      final OidcTokens? renewed = await oidcAuth.refresh(refreshToken);
+      if (renewed == null) return null;
+      if (renewed.refreshToken != null) {
+        await sessionStore.writeOidcRefreshToken(renewed.refreshToken!);
+      }
+      return renewed.accessToken;
     },
   );
 

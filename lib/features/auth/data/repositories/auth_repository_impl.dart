@@ -9,21 +9,25 @@ import '../../../../core/usecase/result.dart';
 import '../../domain/entities/session.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_datasource.dart';
+import '../datasources/oidc_auth_datasource.dart';
 import '../models/session_model.dart';
 
 /// Bridges the auth API to the domain, and owns local session persistence.
 class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl({
     required AuthRemoteDataSource remote,
+    required OidcAuthDataSource oidc,
     required SecureSessionStore sessionStore,
     required CookieStore cookieStore,
     required ResponseCache cache,
   })  : _remote = remote,
+        _oidc = oidc,
         _sessionStore = sessionStore,
         _cookieStore = cookieStore,
         _cache = cache;
 
   final AuthRemoteDataSource _remote;
+  final OidcAuthDataSource _oidc;
   final SecureSessionStore _sessionStore;
   final CookieStore _cookieStore;
   final ResponseCache _cache;
@@ -279,9 +283,53 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Result<Session>> loginWithSso() async {
+    try {
+      final OidcTokens tokens = await _oidc.authorize();
+      await _sessionStore.writeAccessToken(tokens.accessToken);
+      if (tokens.refreshToken != null) {
+        await _sessionStore.writeOidcRefreshToken(tokens.refreshToken!);
+      }
+
+      // idp mints the access token from the same claim shape `issueSession()`
+      // does; the profile and tenant list still come from the normal REST
+      // endpoints (now authenticated by the freshly-stored Bearer token)
+      // rather than being parsed out of the token, so a stale token claim can
+      // never diverge from what the API considers current.
+      final AuthUserModel profile = await _remote.fetchProfile();
+      final List<TenantModel> tenants = await _remote.listTenants();
+      final TenantModel tenant = tenants.firstWhere(
+        (TenantModel t) => t.isCurrent,
+        orElse: () => tenants.isNotEmpty
+            ? tenants.first
+            : (throw const AuthException(
+                'Signed in, but this account has no tenant membership.',
+              )),
+      );
+
+      await _sessionStore.writeUser(profile.toJson());
+      await _sessionStore.writeTenant(tenant.toJson());
+      await _sessionStore.writePermissions(profile.permissions);
+
+      return Result<Session>.ok(
+        Session(accessToken: tokens.accessToken, user: profile, tenant: tenant),
+      );
+    } on Object catch (error) {
+      return Result<Session>.err(mapExceptionToFailure(error));
+    }
+  }
+
+  @override
   Future<Result<void>> logout() async {
     try {
-      await _remote.logout();
+      final String? oidcRefreshToken = await _sessionStore.readOidcRefreshToken();
+      if (oidcRefreshToken != null) {
+        // SSO-originated session: the server side of the session lives at
+        // idp, not behind the legacy `/auth/logout` cookie route.
+        await _oidc.endSession();
+      } else {
+        await _remote.logout();
+      }
     } on Object catch (error) {
       // A failed server logout must not strand the user in a signed-in shell —
       // the local session is wiped either way.

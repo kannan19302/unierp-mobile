@@ -31,6 +31,30 @@ class Env {
   /// Fully-qualified API root, e.g. `https://api.unerp.example/api/v1`.
   static String get apiBaseUrl => '$apiOrigin/api/v1';
 
+  static const String _rawIdpOrigin = String.fromEnvironment(
+    'IDP_BASE_URL',
+    // Android emulator loopback for the containerised idp on host port 3005.
+    defaultValue: 'http://10.0.2.2:3005',
+  );
+
+  /// The OIDC issuer this app authenticates against — `idp`, not `api`.
+  /// `unierp-mobile` (P9) is pre-registered as a public PKCE client in
+  /// data/prisma/seed-oidc-clients.ts, redirecting to `unierp://auth/callback`.
+  static String get idpOrigin => _stripTrailingSlash(_rawIdpOrigin);
+
+  static const String oidcClientId = 'unierp-mobile';
+  static const String oidcRedirectUri = 'unierp://auth/callback';
+  static const String oidcLogoutRedirectUri = 'unierp://auth/logout';
+  static const List<String> oidcScopes = <String>[
+    'openid',
+    'profile',
+    'email',
+    'tenant',
+    'offline_access',
+    'erp.read',
+    'erp.write',
+  ];
+
   static Flavor get flavor => switch (_flavorName) {
         'prod' => Flavor.prod,
         'staging' => Flavor.staging,

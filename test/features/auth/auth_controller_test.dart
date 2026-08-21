@@ -33,6 +33,7 @@ class FakeAuthRepository implements AuthRepository {
   Result<Session> mfaResult = const Result<Session>.ok(_session);
   Result<List<Tenant>> tenantsResult = const Result<List<Tenant>>.ok(<Tenant>[_tenant]);
   Result<Session> switchTenantResult = const Result<Session>.ok(_session);
+  Result<Session> ssoResult = const Result<Session>.ok(_session);
   int logoutCalls = 0;
 
   @override
@@ -68,6 +69,9 @@ class FakeAuthRepository implements AuthRepository {
     String? captchaToken,
   }) async =>
       loginResult;
+
+  @override
+  Future<Result<Session>> loginWithSso() async => ssoResult;
 
   @override
   Future<Result<Session>> verifyMfaLogin({

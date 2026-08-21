@@ -17,6 +17,11 @@ class SecureSessionStore {
   static const String _kTenant = 'unerp.tenant';
   static const String _kPermissions = 'unerp.permissions';
   static const String _kBiometricEnabled = 'unerp.biometric_enabled';
+  // A password-flow session renews itself via the httpOnly refresh cookie
+  // (see AuthInterceptor); an OIDC-flow session has no cookie jar to lean on
+  // — flutter_appauth hands the refresh token to the app directly — so it
+  // has to be persisted here instead.
+  static const String _kOidcRefreshToken = 'unerp.oidc_refresh_token';
 
   static const FlutterSecureStorage defaultStorage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
@@ -58,6 +63,12 @@ class SecureSessionStore {
         () => _storage.write(key: _kBiometricEnabled, value: '$enabled'),
       );
 
+  Future<String?> readOidcRefreshToken() =>
+      _guard(() => _storage.read(key: _kOidcRefreshToken));
+
+  Future<void> writeOidcRefreshToken(String token) =>
+      _guard(() => _storage.write(key: _kOidcRefreshToken, value: token));
+
   /// Wipes every session artefact. Called on logout and on a dead refresh token.
   Future<void> clear() async {
     await _guard(() async {
@@ -66,6 +77,7 @@ class SecureSessionStore {
         _storage.delete(key: _kUser),
         _storage.delete(key: _kTenant),
         _storage.delete(key: _kPermissions),
+        _storage.delete(key: _kOidcRefreshToken),
       ]);
     });
   }

@@ -23,6 +23,10 @@ Failure mapExceptionToFailure(Object error) {
     return CacheFailure(error.message, code: 'CACHE_ERROR');
   }
 
+  if (error is AuthException) {
+    return UnauthorizedFailure(error.message, code: 'OIDC_AUTH_ERROR');
+  }
+
   return const ServerFailure(
     'Something went wrong. Please try again.',
     code: 'INTERNAL_ERROR',

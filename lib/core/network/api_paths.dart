@@ -28,6 +28,12 @@ class ApiPaths {
   static const String loginHistory = '/auth/login-history';
   static const String pushSubscribe = '/auth/push/subscribe';
   static const String pushUnsubscribe = '/auth/push/unsubscribe';
+
+  // ── saas (apps/api/src/modules/saas/saas.controller.ts) ──
+  /// Slugs of the modules installed for the active tenant — the same source
+  /// tenant-apps' Application Wizard (W7) and command palette read from, so
+  /// the mobile nav shows exactly the same entitlement as web.
+  static const String installedApps = '/saas/installed-apps';
   static const String pushDevices = '/auth/push/devices';
 
   // ── onboarding (apps/api/src/modules/auth/onboarding.controller.ts) ──

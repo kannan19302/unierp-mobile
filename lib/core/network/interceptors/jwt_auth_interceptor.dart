@@ -9,5 +9,6 @@ class JwtAuthInterceptor extends AuthInterceptor {
     required super.sessionStore,
     required super.cookieStore,
     required super.onSessionExpired,
+    super.oidcRefresh,
   });
 }

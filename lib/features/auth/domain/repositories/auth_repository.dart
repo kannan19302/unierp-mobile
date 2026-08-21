@@ -48,6 +48,11 @@ abstract class AuthRepository {
   /// Polls whether a push-approved MFA challenge has been answered.
   Future<Result<Session?>> pollMfaPush({required String challengeToken});
 
+  /// Signs in via the system browser using OIDC authorization-code + PKCE
+  /// against `idp`, rather than this app collecting the password itself —
+  /// the same SSO doctrine every web platform (W6) uses.
+  Future<Result<Session>> loginWithSso();
+
   /// Restores a session from secure storage on a warm start, refreshing the
   /// access token when the persisted one has expired.
   Future<Result<Session?>> restoreSession();

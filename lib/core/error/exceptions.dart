@@ -44,3 +44,15 @@ class CacheException implements Exception {
   @override
   String toString() => 'CacheException($message)';
 }
+
+/// The OIDC system-browser flow (authorize, refresh, or end-session) failed
+/// or was cancelled — distinct from [ApiException] because there is no HTTP
+/// error envelope; the failure came from the browser/platform layer instead.
+class AuthException implements Exception {
+  const AuthException(this.message);
+
+  final String message;
+
+  @override
+  String toString() => 'AuthException($message)';
+}

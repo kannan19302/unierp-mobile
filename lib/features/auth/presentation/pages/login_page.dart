@@ -179,6 +179,27 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           : const Text('Sign in'),
                     ),
                     const SizedBox(height: Spacing.x3),
+                    Row(
+                      children: <Widget>[
+                        Expanded(child: Divider(color: t.border)),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: Spacing.x3),
+                          child: Text(
+                            'or',
+                            style: TextStyle(color: t.textTertiary, fontSize: TypeScale.xs),
+                          ),
+                        ),
+                        Expanded(child: Divider(color: t.border)),
+                      ],
+                    ),
+                    const SizedBox(height: Spacing.x3),
+                    OutlinedButton(
+                      onPressed: auth.isSubmitting
+                          ? null
+                          : () => ref.read(authControllerProvider.notifier).loginWithSso(),
+                      child: const Text('Sign in with UniERP Account'),
+                    ),
+                    const SizedBox(height: Spacing.x3),
                     TextButton(
                       onPressed: () => context.pushNamed(RegisterPage.routeName),
                       child: const Text("Don't have an organisation? Create one"),

@@ -6,6 +6,7 @@ import '../../../../core/rbac/permissions.dart';
 import '../../../../core/usecase/result.dart';
 import '../../../../core/usecase/usecase.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
+import '../../data/datasources/oidc_auth_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/session.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -19,9 +20,13 @@ final Provider<AuthRemoteDataSource> authRemoteDataSourceProvider =
   (Ref ref) => AuthRemoteDataSourceImpl(ref.watch(apiClientProvider)),
 );
 
+final Provider<OidcAuthDataSource> oidcAuthDataSourceProvider =
+    Provider<OidcAuthDataSource>((Ref ref) => OidcAuthDataSourceImpl());
+
 final Provider<AuthRepository> authRepositoryProvider = Provider<AuthRepository>(
   (Ref ref) => AuthRepositoryImpl(
     remote: ref.watch(authRemoteDataSourceProvider),
+    oidc: ref.watch(oidcAuthDataSourceProvider),
     sessionStore: ref.watch(secureSessionStoreProvider),
     cookieStore: ref.watch(cookieStoreProvider),
     cache: ref.watch(responseCacheProvider),
@@ -118,6 +123,29 @@ class AuthController extends Notifier<AuthState> {
           ),
         _ => state.copyWith(isSubmitting: false, failure: failure),
       },
+      (Session session) => state.copyWith(
+        status: AuthStatus.authenticated,
+        session: session,
+        isSubmitting: false,
+        requiresTenantSlug: false,
+        clearFailure: true,
+      ),
+    );
+
+    if (state.isAuthenticated) unawaited(loadTenants());
+  }
+
+  /// Signs in via the system browser (OIDC + PKCE) instead of a password
+  /// form. No MFA/tenant-selection branch here — idp's own hosted login page
+  /// (idp/src/modules/oidc/controllers/login.controller.ts) already handles
+  /// MFA before the browser ever redirects back to this app.
+  Future<void> loginWithSso() async {
+    state = state.copyWith(isSubmitting: true, clearFailure: true);
+
+    final Result<Session> result = await _repository.loginWithSso();
+
+    state = result.fold(
+      (Failure failure) => state.copyWith(isSubmitting: false, failure: failure),
       (Session session) => state.copyWith(
         status: AuthStatus.authenticated,
         session: session,

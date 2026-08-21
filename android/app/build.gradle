@@ -25,6 +25,11 @@ android {
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutter.versionCode
         versionName flutter.versionName
+        // flutter_appauth generates its RedirectUriReceiverActivity's
+        // intent-filter from this placeholder — must match Env.oidcRedirectUri
+        // ('unierp://auth/callback') and the redirect URI registered for the
+        // unierp-mobile OIDC client in data/prisma/seed-oidc-clients.ts.
+        manifestPlaceholders += [appAuthRedirectScheme: "unierp"]
     }
 
     buildTypes {

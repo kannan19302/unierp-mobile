@@ -22,6 +22,11 @@ dependencies:
   dio_cookie_manager: ^3.1.1
   cookie_jar: ^4.0.8
 
+  # OIDC authorization-code + PKCE via the system browser, against idp's
+  # /oidc/authorize — the same SSO every W6-wired web platform uses, instead
+  # of this app being the tenth place credentials get typed.
+  flutter_appauth: ^7.0.0
+
   # Persistence
   flutter_secure_storage: ^9.2.2
   shared_preferences: ^2.3.3

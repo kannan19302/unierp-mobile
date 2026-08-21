@@ -20,10 +20,12 @@ class AuthInterceptor extends QueuedInterceptor {
     required SecureSessionStore sessionStore,
     required CookieStore cookieStore,
     required Future<void> Function() onSessionExpired,
+    Future<String?> Function(String refreshToken)? oidcRefresh,
   })  : _refreshClient = refreshClient,
         _sessionStore = sessionStore,
         _cookieStore = cookieStore,
-        _onSessionExpired = onSessionExpired;
+        _onSessionExpired = onSessionExpired,
+        _oidcRefresh = oidcRefresh;
 
   /// Routes that ARE the auth flow — a 401 from these must never be retried.
   static const List<String> _noRefreshPaths = <String>[
@@ -41,6 +43,9 @@ class AuthInterceptor extends QueuedInterceptor {
   final SecureSessionStore _sessionStore;
   final CookieStore _cookieStore;
   final Future<void> Function() _onSessionExpired;
+  // Present only when the app is wired for OIDC login (see providers.dart).
+  // `null` in any test/context that only exercises the password flow.
+  final Future<String?> Function(String refreshToken)? _oidcRefresh;
   final AppLogger _log = const AppLogger('auth-interceptor');
 
   Future<bool>? _refreshInFlight;
@@ -111,6 +116,21 @@ class AuthInterceptor extends QueuedInterceptor {
   }
 
   Future<bool> _performRefresh() async {
+    // An OIDC-flow session (W11) has no refresh cookie to lean on at all —
+    // its refresh token was handed to the app directly by flutter_appauth
+    // and lives in secure storage. Check for it first: it's a strict
+    // alternative to the cookie path below, never a fallback from it.
+    final String? oidcRefreshToken = await _sessionStore.readOidcRefreshToken();
+    if (oidcRefreshToken != null && _oidcRefresh != null) {
+      final String? newAccessToken = await _oidcRefresh(oidcRefreshToken);
+      if (newAccessToken == null) {
+        _log.info('OIDC refresh token could not be renewed');
+        return false;
+      }
+      await _sessionStore.writeAccessToken(newAccessToken);
+      return true;
+    }
+
     // `refresh_token` is httpOnly, so on web no JS-visible cookie jar — dio's
     // included — can ever see it; hasRefreshCookie() would always report false
     // there and skip the refresh call even though the browser holds a valid
