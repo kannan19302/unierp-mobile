@@ -26,6 +26,7 @@ dependencies:
   # /oidc/authorize — the same SSO every W6-wired web platform uses, instead
   # of this app being the tenth place credentials get typed.
   flutter_appauth: ^7.0.0
+  url_launcher: ^6.3.1
 
   # Persistence
   flutter_secure_storage: ^9.2.2

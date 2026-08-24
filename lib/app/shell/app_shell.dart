@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/platform/breakpoints.dart';
 import '../../features/notifications/presentation/providers/notifications_providers.dart';
 import 'entitlement_provider.dart';
+import '../theme/theme_mode_provider.dart';
+import '../../core/config/env.dart';
+import 'unierp_mark.dart';
 
 /// Shell wrapping every authenticated route. Same [navigationShell] and
 /// destination set on every platform — only the chrome changes: bottom nav
@@ -17,6 +21,42 @@ class AppShell extends ConsumerWidget {
   const AppShell({required this.navigationShell, super.key});
 
   final StatefulNavigationShell navigationShell;
+
+  PreferredSizeWidget _appBar(BuildContext context, WidgetRef ref) => AppBar(
+        title: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            UniErpMark(size: 28),
+            SizedBox(width: 8),
+            Text('UniERP'),
+          ],
+        ),
+        actions: <Widget>[
+          IconButton(
+            tooltip: 'Toggle light or dark theme',
+            onPressed: () {
+              final Brightness brightness = Theme.of(context).brightness;
+              ref.read(themeModeProvider.notifier).state =
+                  brightness == Brightness.dark
+                      ? ThemeMode.light
+                      : ThemeMode.dark;
+            },
+            icon: Icon(
+              Theme.of(context).brightness == Brightness.dark
+                  ? Icons.light_mode_outlined
+                  : Icons.dark_mode_outlined,
+            ),
+          ),
+          IconButton(
+            tooltip: 'Account Center',
+            onPressed: () => launchUrl(
+              Uri.parse('${Env.idpOrigin}/oidc/account'),
+              mode: LaunchMode.externalApplication,
+            ),
+            icon: const Icon(Icons.account_circle_outlined),
+          ),
+        ],
+      );
 
   static const List<_Destination> _destinations = <_Destination>[
     _Destination(
@@ -217,6 +257,7 @@ class AppShell extends ConsumerWidget {
             onSelect: (int index) => _onSelect(context, index, entitledSlugs),
             destinations: _destinations,
             entitledSlugs: entitledSlugs,
+            appBar: _appBar(context, ref),
           )
         : _MobileShell(
             navigationShell: navigationShell,
@@ -224,6 +265,7 @@ class AppShell extends ConsumerWidget {
             onSelect: (int index) => _onSelect(context, index, entitledSlugs),
             destinations: _destinations,
             entitledSlugs: entitledSlugs,
+            appBar: _appBar(context, ref),
           );
   }
 }
@@ -232,9 +274,7 @@ class AppShell extends ConsumerWidget {
 /// unknown) and kernel destinations (`slug == null`) both read as entitled —
 /// see [AppShell._onSelect] for why "unknown" fails open here.
 bool _isEntitled(_Destination d, Set<String>? entitledSlugs) =>
-    entitledSlugs == null ||
-    d.slug == null ||
-    entitledSlugs.contains(d.slug);
+    entitledSlugs == null || d.slug == null || entitledSlugs.contains(d.slug);
 
 class _MobileShell extends StatelessWidget {
   const _MobileShell({
@@ -243,6 +283,7 @@ class _MobileShell extends StatelessWidget {
     required this.onSelect,
     required this.destinations,
     required this.entitledSlugs,
+    required this.appBar,
   });
 
   final StatefulNavigationShell navigationShell;
@@ -250,10 +291,12 @@ class _MobileShell extends StatelessWidget {
   final ValueChanged<int> onSelect;
   final List<_Destination> destinations;
   final Set<String>? entitledSlugs;
+  final PreferredSizeWidget appBar;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: appBar,
       body: navigationShell,
       bottomNavigationBar: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -285,6 +328,7 @@ class _DesktopShell extends StatelessWidget {
     required this.onSelect,
     required this.destinations,
     required this.entitledSlugs,
+    required this.appBar,
   });
 
   final StatefulNavigationShell navigationShell;
@@ -292,10 +336,12 @@ class _DesktopShell extends StatelessWidget {
   final ValueChanged<int> onSelect;
   final List<_Destination> destinations;
   final Set<String>? entitledSlugs;
+  final PreferredSizeWidget appBar;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: appBar,
       body: Row(
         children: <Widget>[
           // NavigationRail lays its destinations out in a fixed-height Column

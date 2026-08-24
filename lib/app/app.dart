@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
+import 'theme/theme_mode_provider.dart';
 
 class UniErpApp extends ConsumerWidget {
   const UniErpApp({super.key});
@@ -12,6 +13,7 @@ class UniErpApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final GoRouter router = ref.watch(appRouterProvider);
+    final ThemeMode themeMode = ref.watch(themeModeProvider);
 
     return MaterialApp.router(
       title: 'UniERP',
@@ -20,7 +22,7 @@ class UniErpApp extends ConsumerWidget {
       builder: DevicePreview.appBuilder,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
-      themeMode: ThemeMode.system,
+      themeMode: themeMode,
       routerConfig: router,
     );
   }

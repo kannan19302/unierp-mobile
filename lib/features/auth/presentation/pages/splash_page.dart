@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../app/shell/unierp_mark.dart';
 
 /// Shown while [AuthController] restores a persisted session on cold start.
 class SplashPage extends StatelessWidget {
@@ -8,28 +9,14 @@ class SplashPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Palette t = context.tokens;
-    return Scaffold(
+    return const Scaffold(
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Container(
-              height: Spacing.x12,
-              width: Spacing.x12,
-              decoration: BoxDecoration(color: t.primaryLight, borderRadius: Radii.card),
-              alignment: Alignment.center,
-              child: Text(
-                'U',
-                style: TextStyle(
-                  color: t.primary,
-                  fontSize: TypeScale.x2l,
-                  fontWeight: TypeScale.bold,
-                ),
-              ),
-            ),
-            const SizedBox(height: Spacing.x6),
-            const CircularProgressIndicator(strokeWidth: 2),
+            UniErpMark(size: Spacing.x12),
+            SizedBox(height: Spacing.x6),
+            CircularProgressIndicator(strokeWidth: 2),
           ],
         ),
       ),
