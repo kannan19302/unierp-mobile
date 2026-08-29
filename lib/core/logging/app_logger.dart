@@ -2,7 +2,7 @@ import 'dart:developer' as developer;
 
 import '../config/env.dart';
 
-/// Structured logger — the mobile counterpart of `@unerp/shared/logger`.
+/// Structured logger — the mobile counterpart of `@kannan19302/shared/logger`.
 ///
 /// AGENTS.md Rule 3 forbids raw `print`; `avoid_print` is enforced by the
 /// analyzer. In release builds only warnings and above are emitted, and secrets
